@@ -34,8 +34,10 @@ def recvMessage(message, sid):
         time.sleep(10)
         socket.emit("push", "Pinging server @"+str(time.time()*1000000))
     os.system("clear")
-    print("\n".join(messages)+"\n\nLatency: "+ansi.color+"3m"+str(latency)+" microseconds"+ansi.esc)
-    if latency > 1000000: pyno.notify("Latency warning","Latency "+str(latency),"Horn")
+    try: 
+        print("\n".join(messages)+"\n\nLatency: "+ansi.color+"3m"+str(latency)+" microseconds"+ansi.esc+" ["+str(latency/1000000)+" seconds] "+ansi.hidecursor)
+        if latency > 1000000: pyno.notify("Latency warning","Latency "+str(latency),"Horn")
+    except: pass
 
 while True:
     if len(messages) > 100: del messages[0]

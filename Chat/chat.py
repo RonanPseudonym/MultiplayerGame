@@ -2,12 +2,14 @@ print("Starting up...")
 
 import wsm, ansi, atexit, time, getch, os, random, styles
 
-blacklist = "␛"
-
 hostname = input("Enter name: ").strip().replace(" ","-").replace("_","-").replace("@","").replace("*","").replace("`","").lower()
 color = str(random.randint(1, 230))+"m"
 
 inp = ["> "]
+
+wsm.passName(hostname)
+
+wsm.passColor(color)
 
 wsm.passInp("".join(inp))
 
@@ -19,7 +21,7 @@ while True:
         break
     except:
         print("Waking server...")
-        time.sleep
+        time.sleep(10)
 
 typing = False
 
@@ -38,7 +40,7 @@ try:
                 elif len(inp) <= 2:
                     typing = False
                     if len(inp) == 2: del inp[-1]
-            elif not key in blacklist: 
+            else: 
                 inp.append(key)
                 typing = True
             wsm.passInp("".join(inp)+"▉")
@@ -46,11 +48,8 @@ try:
             wsm.drawScreen(wsm.passTypers(), "".join(inp)+"▉")
             if oldTyping != typing:
                 oldTyping = typing
-                wsm.push(hostname+" typing status: "+str(typing))
-        typing = False
-        if oldTyping != typing:
-            oldTyping = typing
-            wsm.push(hostname+" typing status: "+str(typing))
+                wsm.push(["typing status",[hostname,typing]])
+        wsm.push(["typing status",[hostname,False]])
         del inp[0]
         closeBold = False
         closeItalic = False
@@ -75,6 +74,6 @@ try:
                 if inp[i] in list(styles.normal): inp[i] = str(styles.italic[list(styles.normal).index(inp[i])])
             elif closeMono == True:
                 if inp[i] in list(styles.normal): inp[i] = str(styles.mono[list(styles.normal).index(inp[i])])
-        if len(inp) > 0: wsm.push("␛ "+ansi.color+color+hostname+": "+"".join(inp).strip()+ansi.esc)
+        if len(inp) > 0: wsm.push(["chat",ansi.color+color+hostname+": "+"".join(inp).strip()+ansi.esc])
 
 except KeyboardInterrupt: wsm.disconnect(hostname)

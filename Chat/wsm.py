@@ -6,14 +6,16 @@ messages = []
 global typing
 typing =[]
 
-global inp
+global inp, name, color
 inp = ""
+name = ""
+color = ""
 
 def push(message): socket.emit("push", message)
 
 def connect(uri, name):
     socket.connect(uri)
-    push(name+" has joined the chat")
+    push(["join", name+" has joined the chat"])
 
 def disconnect(name): push(name+" has left the chat")
 
@@ -28,13 +30,20 @@ def drawScreen(typing, inp):
 
 @socket.event
 def recvMessage(message, sid):
-    if " typing status: " in message:
-        typer, status = message.split(" typing status: ")
-        if status == "True": typing.append(typer)
+    if message[0] == "typing status":
+        typer, status = message[1][0], message[1][1]
+        if status == True: typing.append(typer)
         else: typing.remove(typer)
-    elif "␛" in message or "has joined the chat" in message:
-        messages.append(message.replace("␛ ",""))
+    elif message[0] == "chat":
+        messages.append(message[1])
         if len(messages) > 100: del messages[0]
+        if str("@"+name) in message: 
+            strippedName = message.split(": ")
+            del strippedName[1]
+            pyno.notify("".join(strippedName).split("m")[1]+" mentioned you",message.split(": ")[1].replace("[38;5;"+color,"").replace("[38;5;3m","").replace("[0m",""),"default")
+    elif message[0] == "join":
+        messages.append(message[1])
+        pyno.notify(message[1],message[1],"default")
     drawScreen(typing, inp)
 
 def passTypers():
@@ -45,3 +54,11 @@ def getMessages(): return(messages)
 def passInp(var):
     global inp
     inp = var
+
+def passName(var):
+    global name
+    name = var
+
+def passColor(var):
+    global color
+    color = var
